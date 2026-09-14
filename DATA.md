@@ -9,6 +9,17 @@ None of this is anonymized/synthetic — it is real station/counter data, so
 treat it accordingly (do not commit it; keep it out of version control,
 e.g. via `.gitignore`).
 
+If you still have the original `tools/meteo_slo/`, `tools/dars_traffic/`,
+`tools/arso_air/` tree from the source project, run
+[`scripts/collect_zenodo_data.py`](scripts/collect_zenodo_data.py) from
+there — it copies exactly the files below into this layout and zips the
+result (for a Zenodo upload, say), reporting anything it can't find rather
+than failing silently:
+
+```bash
+python collect_zenodo_data.py --source-root tools --dest-root data
+```
+
 ## `data/meteo/` — weather stations (9-fold split, `k=8` → folds `i=0..8`)
 
 - **`data/meteo/stations_curated_sorted.json`** — full station metadata (keys
