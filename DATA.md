@@ -39,17 +39,6 @@ than failing silently:
 python collect_zenodo_data.py --source-root tools --dest-root data
 ```
 
-If you already have a `data/` folder built by an older version of that
-script (the `stations_curated_sorted*.json` / `graph/<name>/edgelist.nx` /
-`metadata/k_fold/...` layout), migrate it in place instead of re-fetching —
-[`scripts/repack_data.py`](scripts/repack_data.py) moves everything into the
-layout below and deletes any `data/paper/`, `data/mag/` (unrelated to this
-project):
-
-```bash
-python repack_data.py --root data          # add --dry-run to preview first
-```
-
 ## `data/meteo/` — weather stations (9-fold split, `k=8` → folds `i=0..8`)
 
 - **`data/meteo/contextual/stations.json`** — full station metadata (keys
