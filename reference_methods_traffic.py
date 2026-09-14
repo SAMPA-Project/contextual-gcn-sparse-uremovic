@@ -181,11 +181,11 @@ def main():
 
     folds = [args.fold] if args.fold is not None else range(args.k)
     for i in folds:
-        graph_real = f'data/traffic/graph/k_fold/{i}/edgelist.nx'
-        metadata_real = f"data/traffic/metadata/k_fold/{i}.json"
-        metadata_virtual = f"data/traffic/metadata/k_fold/{i}_v.json"
-        graph_full = 'data/traffic/graph/consolidated/edgelist.nx'
-        metadata_full = 'data/traffic/counters_consolidated.json'
+        graph_real = f'data/traffic/graph/{i}_real.nx'
+        metadata_real = f"data/traffic/contextual/{i}_real.json"
+        metadata_virtual = f"data/traffic/contextual/{i}_virtual.json"
+        graph_full = 'data/traffic/graph/stations.nx'
+        metadata_full = 'data/traffic/contextual/stations.json'
         base_interp(i, graph_real, metadata_real, graph_full, metadata_full)
         interp_base(i, graph_real, metadata_real, graph_full, metadata_full)
 

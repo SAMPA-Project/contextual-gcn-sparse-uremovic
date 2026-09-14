@@ -64,7 +64,16 @@ def copy_dir_files(src_dir: Path, dst_dir: Path, pattern: str, missing: list, no
 
 
 def build_manifest(src_root: Path, dst_root: Path):
-    """Returns (static_files, fallback_files, dir_globs, fold_files) — see main() for shapes."""
+    """Returns (static_files, optional_files, fallback_files, fold_files, dir_globs).
+
+    Destination layout is unified across datasets:
+        data/<dataset>/graph/...        edgelists (.nx)
+        data/<dataset>/contextual/...   metadata jsons, raster npys, context csvs
+        data/<dataset>/timeseries/...   per-node timeseries csvs (unchanged filenames)
+    and file naming: `stations.json`/`stations*.nx` for the full set, `<fold>_real`/
+    `<fold>_virtual` for k-fold subsets, graph files taking the matching metadata's
+    base name plus a weighting-scheme suffix where more than one variant exists.
+    """
 
     # ── meteo ────────────────────────────────────────────────────────────────
     meteo_src = src_root / "meteo_slo"
@@ -72,36 +81,34 @@ def build_manifest(src_root: Path, dst_root: Path):
 
     static_files = [
         (meteo_src / "data/full_curated/SamodejnePostaje_curated_sorted.json",
-         meteo_dst / "stations_curated_sorted.json"),
+         meteo_dst / "contextual/stations.json"),
         (meteo_src / "dtm/data/dtm.npy",
-         meteo_dst / "dtm/dtm.npy"),
+         meteo_dst / "contextual/dtm.npy"),
         (meteo_src / "sentinel/data/sentinel2_data.npy",
-         meteo_dst / "sentinel/sentinel2_data.npy"),
+         meteo_dst / "contextual/sentinel2_data.npy"),
+        # "fullHigherBenchmarks" is the full graph actually used by the
+        # experiments (reference_methods_meteo.py / virtual_meteo.py); the
+        # bare-named graph below is only used for the hyperparameter sweep.
+        (meteo_src / "data/full_curated/graph/elev_distance_3500_distance_30000_corr_0975_fullHigherBenchmarks/edgelist.nx",
+         meteo_dst / "graph/stations.nx"),
+        (meteo_src / "data/full_curated/graph/elev_distance_3500_distance_30000_corr_0975/edgelist.nx",
+         meteo_dst / "graph/stations_hp.nx"),
     ]
 
-    # named graph variants, each a directory containing edgelist.nx
-    meteo_graph_names = [
-        "elev_distance_3500_distance_30000_corr_0975",
-        "elev_distance_3500_distance_30000_corr_0975_fullHigherBenchmarks",
-    ] + [
-        f"elev_distance_3500_distance_30000_corr_0975_REAL_K=8_i={i}" for i in range(9)
-    ]
-    for name in meteo_graph_names:
-        static_files.append((
-            meteo_src / f"data/full_curated/graph/{name}/edgelist.nx",
-            meteo_dst / f"graph/{name}/edgelist.nx",
-        ))
-
-    # meteo k-fold metadata (k=8, 9 folds: i=0..8)
+    # meteo k-fold metadata + per-fold real graph (k=8, 9 folds: i=0..8)
     fold_files = []
     for i in range(9):
         fold_files.append((
             meteo_src / f"data/full_curated/SamodejnePostaje_curated_sorted_REAL_K=8_i={i}.json",
-            meteo_dst / f"stations_curated_sorted_REAL_K=8_i={i}.json",
+            meteo_dst / f"contextual/{i}_real.json",
         ))
         fold_files.append((
             meteo_src / f"data/full_curated/SamodejnePostaje_curated_sorted_VIRTUAL_k=8_i={i}.json",
-            meteo_dst / f"stations_curated_sorted_VIRTUAL_k=8_i={i}.json",
+            meteo_dst / f"contextual/{i}_virtual.json",
+        ))
+        fold_files.append((
+            meteo_src / f"data/full_curated/graph/elev_distance_3500_distance_30000_corr_0975_REAL_K=8_i={i}/edgelist.nx",
+            meteo_dst / f"graph/{i}_real.nx",
         ))
 
     dir_globs = [
@@ -114,37 +121,37 @@ def build_manifest(src_root: Path, dst_root: Path):
 
     static_files += [
         (traffic_src / "counters_consolidated.json",
-         traffic_dst / "counters_consolidated.json"),
+         traffic_dst / "contextual/stations.json"),
         (traffic_src / "data/graph_consolidated/edgelist.nx",
-         traffic_dst / "graph/consolidated/edgelist.nx"),
+         traffic_dst / "graph/stations.nx"),
     ]
     # generated (not raw) — copy if present, but don't complain if missing;
     # data_handling/generate_expw_graphs.py can (re)build these
     optional_files = [
         (traffic_src / "data/graph_consolidated/edgelist_expw.nx",
-         traffic_dst / "graph/consolidated/edgelist_expw.nx"),
+         traffic_dst / "graph/stations_expw.nx"),
     ]
 
     for i in range(10):
         fold_files.append((
             traffic_src / f"metadata/k_fold/{i}.json",
-            traffic_dst / f"metadata/k_fold/{i}.json",
+            traffic_dst / f"contextual/{i}_real.json",
         ))
         fold_files.append((
             traffic_src / f"metadata/k_fold/{i}_v.json",
-            traffic_dst / f"metadata/k_fold/{i}_v.json",
+            traffic_dst / f"contextual/{i}_virtual.json",
         ))
         fold_files.append((
             traffic_src / f"data/k_fold/{i}/edgelist.nx",
-            traffic_dst / f"graph/k_fold/{i}/edgelist.nx",
+            traffic_dst / f"graph/{i}_real.nx",
         ))
         optional_files.append((
             traffic_src / f"data/k_fold/{i}/edgelist_expw.nx",
-            traffic_dst / f"graph/k_fold/{i}/edgelist_expw.nx",
+            traffic_dst / f"graph/{i}_real_expw.nx",
         ))
 
     dir_globs.append(
-        (traffic_src / "data/preproc/consolidated", traffic_dst / "preproc/consolidated", "*.csv")
+        (traffic_src / "data/preproc/consolidated", traffic_dst / "timeseries", "*.csv")
     )
 
     # ── air ──────────────────────────────────────────────────────────────────
@@ -156,32 +163,32 @@ def build_manifest(src_root: Path, dst_root: Path):
     fallback_files = [
         ([air_src / "arso_air_postaje_curated.json",
           air_src / "data/metadata/arso_air_postaje_curated.json"],
-         air_dst / "stations_curated.json"),
+         air_dst / "contextual/stations.json"),
     ]
 
     static_files += [
         (air_src / "data/graph/edgelist_inv.nx",
-         air_dst / "graph/full/edgelist_inv.nx"),
+         air_dst / "graph/stations_inv.nx"),
         (air_src / "metadata/contextual_features_normalized.csv",
-         air_dst / "metadata/contextual_features_normalized.csv"),
+         air_dst / "contextual/contextual_features_normalized.csv"),
     ]
 
     for i in range(8):
         fold_files.append((
             air_src / f"metadata/k_fold_paper/{i}.json",
-            air_dst / f"metadata/k_fold/{i}.json",
+            air_dst / f"contextual/{i}_real.json",
         ))
         fold_files.append((
             air_src / f"metadata/k_fold_paper/{i}_v.json",
-            air_dst / f"metadata/k_fold/{i}_v.json",
+            air_dst / f"contextual/{i}_virtual.json",
         ))
         fold_files.append((
             air_src / f"data/k_fold_paper/{i}/edgelist_inv.nx",
-            air_dst / f"graph/k_fold/{i}/edgelist_inv.nx",
+            air_dst / f"graph/{i}_real_inv.nx",
         ))
 
     dir_globs.append(
-        (air_src / "data/enriched", air_dst / "enriched", "*.csv")
+        (air_src / "data/enriched", air_dst / "timeseries", "*.csv")
     )
 
     return static_files, optional_files, fallback_files, fold_files, dir_globs

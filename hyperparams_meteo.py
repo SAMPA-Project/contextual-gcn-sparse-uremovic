@@ -47,7 +47,7 @@ def base_model(graph_real, metadata_real, filters = 64, khops=2, layers=1, epoch
     Train (or evaluate) the base GCRNN (GCRNNBase) on the meteo dataset.
 
     Args:
-        graph_real:    name of the graph variant under data/meteo/graph/<graph_real>/edgelist.nx
+        graph_real:    graph variant name under data/meteo/graph/<graph_real>.nx
         metadata_real: path to the station metadata JSON for this graph
         filters:       hidden channel width
         khops:         Chebyshev filter order (graph conv receptive field)
@@ -108,9 +108,9 @@ def base_model(graph_real, metadata_real, filters = 64, khops=2, layers=1, epoch
 
 def main():
     parser = argparse.ArgumentParser(description='Hyperparameter sweep for the base GCRNN (meteo).')
-    parser.add_argument('--graph-real', default='elev_distance_3500_distance_30000_corr_0975',
+    parser.add_argument('--graph-real', default='stations_hp',
                          help='graph variant name under data/meteo/graph/ (default: %(default)s)')
-    parser.add_argument('--metadata-real', default='data/meteo/stations_curated_sorted.json',
+    parser.add_argument('--metadata-real', default='data/meteo/contextual/stations.json',
                          help='station metadata JSON path (default: %(default)s)')
     parser.add_argument('--filters', type=int, default=None,
                          help='hidden width; default sweeps [128, 192, 256, 320, 384]')

@@ -126,9 +126,9 @@ def base_model(g, m, filters = 64, khops=2, layers=1, epochs=None, save=True, sk
 
 def main():
     parser = argparse.ArgumentParser(description='Hyperparameter sweep for the base GCRNN (traffic).')
-    parser.add_argument('--graph-real', default='data/traffic/graph/consolidated/edgelist.nx',
+    parser.add_argument('--graph-real', default='data/traffic/graph/stations.nx',
                          help='edgelist graph path (default: %(default)s)')
-    parser.add_argument('--metadata-real', default='data/traffic/counters_consolidated.json',
+    parser.add_argument('--metadata-real', default='data/traffic/contextual/stations.json',
                          help='counter metadata JSON path (default: %(default)s)')
     parser.add_argument('--filters', type=int, default=None,
                          help='hidden width; default sweeps [256]')

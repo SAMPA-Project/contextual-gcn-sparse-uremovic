@@ -375,11 +375,11 @@ def main():
     k = args.k
     folds = [args.fold] if args.fold is not None else range(k + 1)
     for i in folds:
-        graph_real = f'elev_distance_3500_distance_30000_corr_0975_REAL_K={k}_i={i}'
-        metadata_real = f'data/meteo/stations_curated_sorted_REAL_K={k}_i={i}.json'
-        metadata_virtual = f'data/meteo/stations_curated_sorted_VIRTUAL_k={k}_i={i}.json'
-        graph_full = 'elev_distance_3500_distance_30000_corr_0975_fullHigherBenchmarks' # higher thresholds, this is actually the graph that was virtualized k-=fold
-        metadata_full = 'data/meteo/stations_curated_sorted.json'
+        graph_real = f'{i}_real'
+        metadata_real = f'data/meteo/contextual/{i}_real.json'
+        metadata_virtual = f'data/meteo/contextual/{i}_virtual.json'
+        graph_full = 'stations' # this is the graph that was virtualized fold-by-fold
+        metadata_full = 'data/meteo/contextual/stations.json'
         base_interp(i, graph_real, metadata_real, graph_full, metadata_full)
         interp_base(i, graph_real, metadata_real, graph_full, metadata_full)
         interp_raster(i, graph_real, metadata_real, graph_full, metadata_full)

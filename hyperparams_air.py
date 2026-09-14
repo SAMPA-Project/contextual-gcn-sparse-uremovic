@@ -44,7 +44,7 @@ METADATA_FEATURES = [
     'lcp_dist_m', 'lcp_elev_cum', 'lcp_elev_max',
     'ndvi_mean', 'building_coverage'
 ]
-CONTEXTUAL_FEATURES_CSV = "data/air/metadata/contextual_features_normalized.csv"
+CONTEXTUAL_FEATURES_CSV = "data/air/contextual/contextual_features_normalized.csv"
 
 HORIZON = 6
 HISTORY_WINDOW = 23
@@ -121,9 +121,9 @@ def base_model(graph_real, metadata_real, filters = 64, khops=2, layers=1,epochs
 
 def main():
     parser = argparse.ArgumentParser(description='Hyperparameter sweep for the base GCRNN (air).')
-    parser.add_argument('--graph-real', default='data/air/graph/full/edgelist_inv.nx',
+    parser.add_argument('--graph-real', default='data/air/graph/stations_inv.nx',
                          help='edgelist graph path (default: %(default)s)')
-    parser.add_argument('--metadata-real', default='data/air/stations_curated.json',
+    parser.add_argument('--metadata-real', default='data/air/contextual/stations.json',
                          help='station metadata JSON path (default: %(default)s)')
     parser.add_argument('--filters', type=int, default=None,
                          help='hidden width; default sweeps [32, 64, 128]')

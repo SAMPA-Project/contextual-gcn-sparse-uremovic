@@ -238,11 +238,11 @@ def main():
     run = virtual if args.variant == 'ctx' else virtual_noctx
     folds = [args.fold] if args.fold is not None else range(args.k)
     for i in folds:
-        graph_real = f'data/traffic/graph/k_fold/{i}/edgelist_expw.nx'
-        metadata_real = f"data/traffic/metadata/k_fold/{i}.json"
-        metadata_virtual = f"data/traffic/metadata/k_fold/{i}_v.json"
-        graph_full = 'data/traffic/graph/consolidated/edgelist_expw.nx'
-        metadata_full = 'data/traffic/counters_consolidated.json'
+        graph_real = f'data/traffic/graph/{i}_real_expw.nx'
+        metadata_real = f"data/traffic/contextual/{i}_real.json"
+        metadata_virtual = f"data/traffic/contextual/{i}_virtual.json"
+        graph_full = 'data/traffic/graph/stations_expw.nx'
+        metadata_full = 'data/traffic/contextual/stations.json'
         ids_virtual = ids_virtual_fromMetadata(metadata_virtual, metadata_full)
         run(args.layers, args.khops, args.filters, args.virtual_ratio, i, ids_virtual, graph_real, metadata_real, graph_full, metadata_full)
 

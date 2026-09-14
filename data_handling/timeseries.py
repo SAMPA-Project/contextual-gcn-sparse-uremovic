@@ -22,7 +22,7 @@ class forecast_type(Enum):
 
 # traffic
 def load_data_m2m_traffic(history_window, horizon, features, forecast_features, ft, metadata_file):
-    ts_files = natsorted(glob.glob('data/traffic/preproc/consolidated/*.csv')) # consolidated
+    ts_files = natsorted(glob.glob('data/traffic/timeseries/*.csv'))
     dfs = []
     with open(metadata_file, 'r') as fp:
         import json
@@ -37,7 +37,7 @@ def load_data_m2m_traffic(history_window, horizon, features, forecast_features, 
 
 # air
 def load_data_m2m_air(history_window, horizon, features, forecast_features, ft, metadata_file):
-    ts_files = natsorted(glob.glob('data/air/enriched/*.csv'))
+    ts_files = natsorted(glob.glob('data/air/timeseries/*.csv'))
     dfs = []
     with open(metadata_file, 'r') as fp:
         import json
@@ -51,7 +51,7 @@ def load_data_m2m_air(history_window, horizon, features, forecast_features, ft, 
     return lm2m(dfs, history_window, horizon, features, forecast_features, ft, metadata_file)
 
 # meteo
-def load_data_m2m(history_window, horizon, features, forecast_features, demo_nsamples=None, ft=forecast_type.horizon_window, metadata_file='data/meteo/stations_curated_sorted.json'):
+def load_data_m2m(history_window, horizon, features, forecast_features, demo_nsamples=None, ft=forecast_type.horizon_window, metadata_file='data/meteo/contextual/stations.json'):
     ts_files = natsorted(glob.glob('data/meteo/timeseries/**'))
     dfs = []
     with open(metadata_file, 'r') as fp:

@@ -233,10 +233,10 @@ if __name__ == '__main__':
 
     for i in range(K):
         print(f'K-fold: {i}/{K}')
-        graph_real     = f'data/traffic/graph/k_fold/{i}/edgelist_expw.nx'
-        metadata_real  = f'data/traffic/metadata/k_fold/{i}.json'
-        graph_full     = 'data/traffic/graph/consolidated/edgelist_expw.nx'
-        metadata_full  = 'data/traffic/counters_consolidated.json'
+        graph_real     = f'data/traffic/graph/{i}_real_expw.nx'
+        metadata_real  = f'data/traffic/contextual/{i}_real.json'
+        graph_full     = 'data/traffic/graph/stations_expw.nx'
+        metadata_full  = 'data/traffic/contextual/stations.json'
 
         iv, yf, results = interp(graph_real, metadata_real, graph_full, metadata_full, configs)
 

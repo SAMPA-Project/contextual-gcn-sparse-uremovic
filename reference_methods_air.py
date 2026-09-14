@@ -37,7 +37,7 @@ METADATA_FEATURES = [
     'lcp_dist_m', 'lcp_elev_cum', 'lcp_elev_max',
     'ndvi_mean', 'building_coverage'
 ]
-CONTEXTUAL_FEATURES_CSV = "data/air/metadata/contextual_features_normalized.csv"
+CONTEXTUAL_FEATURES_CSV = "data/air/contextual/contextual_features_normalized.csv"
 
 HORIZON = 6
 HISTORY_WINDOW = 23
@@ -414,11 +414,11 @@ def main():
 
     folds = [args.fold] if args.fold is not None else range(args.k)
     for i in folds:
-        graph_real = f'data/air/graph/k_fold/{i}/edgelist_inv.nx'
-        metadata_real = f"data/air/metadata/k_fold/{i}.json"
-        metadata_virtual = f"data/air/metadata/k_fold/{i}_v.json"
-        graph_full = "data/air/graph/full/edgelist_inv.nx"
-        metadata_full = 'data/air/stations_curated.json'
+        graph_real = f'data/air/graph/{i}_real_inv.nx'
+        metadata_real = f"data/air/contextual/{i}_real.json"
+        metadata_virtual = f"data/air/contextual/{i}_virtual.json"
+        graph_full = "data/air/graph/stations_inv.nx"
+        metadata_full = 'data/air/contextual/stations.json'
         base_interp(i, graph_real, metadata_real, graph_full, metadata_full)
         interp_base(i, graph_real, metadata_real, graph_full, metadata_full)
         interp_raster(i, graph_real, metadata_real, graph_full, metadata_full)

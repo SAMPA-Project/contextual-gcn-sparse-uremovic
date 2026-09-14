@@ -23,8 +23,8 @@ def __normalize_grid(grid):
     return (grid - mean) / std
 
 def __grid_data(metadata):
-    dtm = 'data/meteo/dtm/dtm.npy'
-    sentinel = 'data/meteo/sentinel/sentinel2_data.npy'
+    dtm = 'data/meteo/contextual/dtm.npy'
+    sentinel = 'data/meteo/contextual/sentinel2_data.npy'
 
     with open(metadata, 'r') as fp:
         metadata = json.load(fp)
@@ -50,7 +50,7 @@ def full_grid(resolution, metadata):
     rasters = np.stack([dtm, ndvi, scl], axis=-1)[::f, ::f, :]
     return (X0, X1, Y0, Y1), rasters
 
-def load_NxN_data(N, resolution_m, metadata='data/meteo/stations_curated_sorted.json'):
+def load_NxN_data(N, resolution_m, metadata='data/meteo/contextual/stations.json'):
     '''
         order (3x3 example):
         [0 1 2

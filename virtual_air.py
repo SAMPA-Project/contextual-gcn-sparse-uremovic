@@ -53,7 +53,7 @@ METADATA_FEATURES = [
     'O3_mean',   'O3_std',   'O3_p5',   'O3_p95',   'O3_daily_fluct',
     'PM10_mean', 'PM10_std', 'PM10_p5', 'PM10_p95', 'PM10_daily_fluct',
 ]
-CONTEXTUAL_FEATURES_CSV = "data/air/metadata/contextual_features_normalized.csv"
+CONTEXTUAL_FEATURES_CSV = "data/air/contextual/contextual_features_normalized.csv"
 
 HORIZON = 6
 HISTORY_WINDOW = 23
@@ -242,11 +242,11 @@ def main():
     run = virtual if args.variant == 'ctx' else virtual_noctx
     folds = [args.fold] if args.fold is not None else range(args.k)
     for i in folds:
-        graph_real = f'data/air/graph/k_fold/{i}/edgelist_inv.nx'
-        metadata_real = f"data/air/metadata/k_fold/{i}.json"
-        metadata_virtual = f"data/air/metadata/k_fold/{i}_v.json"
-        graph_full = "data/air/graph/full/edgelist_inv.nx"
-        metadata_full = 'data/air/stations_curated.json'
+        graph_real = f'data/air/graph/{i}_real_inv.nx'
+        metadata_real = f"data/air/contextual/{i}_real.json"
+        metadata_virtual = f"data/air/contextual/{i}_virtual.json"
+        graph_full = "data/air/graph/stations_inv.nx"
+        metadata_full = 'data/air/contextual/stations.json'
         ids_virtual = ids_virtual_fromMetadata(metadata_virtual, metadata_full)
         run(args.layers, args.khops, args.filters, args.virtual_ratio, i, ids_virtual, graph_real, metadata_real, graph_full, metadata_full)
 

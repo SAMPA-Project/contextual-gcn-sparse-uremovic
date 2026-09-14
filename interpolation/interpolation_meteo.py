@@ -227,10 +227,10 @@ if __name__ == '__main__':
 
     for i in range(K + 1):
         print(f'kfold:={i}/{K+1}')
-        graph_real     = f'elev_distance_3500_distance_30000_corr_0975_REAL_K={K}_i={i}'
-        metadata_real  = f'data/meteo/stations_curated_sorted_REAL_K={K}_i={i}.json'
-        graph_full     = 'elev_distance_3500_distance_30000_corr_0975_fullHigherBenchmarks'
-        metadata_full  = 'data/meteo/stations_curated_sorted.json'
+        graph_real     = f'{i}_real'
+        metadata_real  = f'data/meteo/contextual/{i}_real.json'
+        graph_full     = 'stations'
+        metadata_full  = 'data/meteo/contextual/stations.json'
 
         iv, yf, results = interp(graph_real, metadata_real, graph_full, metadata_full, configs)
 

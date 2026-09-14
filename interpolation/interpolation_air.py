@@ -220,10 +220,10 @@ if __name__ == '__main__':
 
     for i in range(K):
         print(f'kfold:={i}/{K}')
-        graph_real     = f'data/air/graph/k_fold/{i}/edgelist_inv.nx'
-        metadata_real  = f"data/air/metadata/k_fold/{i}.json"
-        graph_full     = 'data/air/graph/full/edgelist_inv.nx'
-        metadata_full  = 'data/air/stations_curated.json'
+        graph_real     = f'data/air/graph/{i}_real_inv.nx'
+        metadata_real  = f"data/air/contextual/{i}_real.json"
+        graph_full     = 'data/air/graph/stations_inv.nx'
+        metadata_full  = 'data/air/contextual/stations.json'
 
         iv, yf, results = interp(graph_real, metadata_real, graph_full, metadata_full, configs)
 

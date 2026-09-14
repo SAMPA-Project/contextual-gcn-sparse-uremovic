@@ -13,8 +13,8 @@ w(u,w) = w(u,v) * w(v,w).
 
 New files are saved with an _expw suffix so they don't overwrite the
 existing (non-exponentially-weighted) graphs:
-  full graph:  data/traffic/graph/consolidated/edgelist_expw.nx
-  fold graphs: data/traffic/graph/k_fold/{fold}/edgelist_expw.nx
+  full graph:  data/traffic/graph/stations_expw.nx
+  fold graphs: data/traffic/graph/{fold}_real_expw.nx
 
 Run with no arguments; edit the CONFIG constants below to point at a
 different metadata/graph layout or fold count.
@@ -35,12 +35,11 @@ from data_handling.graph_virtualization import reconnect_virtual_nodes
 # CONFIG
 # =============================================================================
 
-GRAPH_REAL    = 'data/traffic/graph/consolidated/edgelist.nx'
-METADATA_REAL = 'data/traffic/counters_consolidated.json'
+GRAPH_REAL    = 'data/traffic/graph/stations.nx'
+METADATA_REAL = 'data/traffic/contextual/stations.json'
 
-KFOLD_META_DIR = 'data/traffic/metadata/k_fold'
-KFOLD_DATA_DIR = 'data/traffic/graph/k_fold'
-FULL_GRAPH_DIR = 'data/traffic/graph/consolidated'
+KFOLD_META_DIR = 'data/traffic/contextual'
+GRAPH_DIR      = 'data/traffic/graph'
 N_FOLDS        = 10
 
 
@@ -94,13 +93,13 @@ def main():
     print(f"  weight range: {ew_expw.min():.4f} — {ew_expw.max():.4f}")
 
     # ── save full weighted graph ──────────────────────────────────────────────
-    full_out = os.path.join(FULL_GRAPH_DIR, 'edgelist_expw.nx')
+    full_out = os.path.join(GRAPH_DIR, 'stations_expw.nx')
     save_graph(ei_np, ew_expw, full_out, idx_to_key)
     print(f"\nfull graph saved -> {full_out}")
 
     # ── process each fold ─────────────────────────────────────────────────────
     for fold in range(N_FOLDS):
-        virtual_path = os.path.join(KFOLD_META_DIR, f'{fold}_v.json')
+        virtual_path = os.path.join(KFOLD_META_DIR, f'{fold}_virtual.json')
         with open(virtual_path, 'r') as f:
             meta_virtual = json.load(f)
 
@@ -121,7 +120,7 @@ def main():
                   if int(u) in ids_virtual_set or int(v) in ids_virtual_set]
         assert len(leaked) == 0, f"fold {fold}: {len(leaked)} leaked edges!"
 
-        out_path = os.path.join(KFOLD_DATA_DIR, str(fold), 'edgelist_expw.nx')
+        out_path = os.path.join(GRAPH_DIR, f'{fold}_real_expw.nx')
         save_graph(ei_rec, ew_rec, out_path, idx_to_key)
         print(f"  saved -> {out_path}")
 

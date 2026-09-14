@@ -26,7 +26,7 @@ def load_graph_traffic(path, counters):
 
 # meteo
 def load_graph(graph):
-    el = nx.read_weighted_edgelist('data/meteo/graph/{}/edgelist.nx'.format(graph))
+    el = nx.read_weighted_edgelist('data/meteo/graph/{}.nx'.format(graph))
     return lg(el)
 
 # base logic
