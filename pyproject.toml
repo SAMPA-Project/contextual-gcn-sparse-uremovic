@@ -1,0 +1,42 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "hybrid-context-gcrnn"
+version = "0.1.0"
+description = "Hybrid context-aware GCRNN models for spatiotemporal forecasting with virtual (unobserved) nodes"
+requires-python = ">=3.10"
+dependencies = [
+    "torch>=2.0",
+    "torch-geometric>=2.3",
+    "torch-geometric-temporal>=0.54",
+    "numpy>=1.24",
+    "pandas>=2.0",
+    "networkx>=3.0",
+    "natsort>=8.0",
+    "pyproj>=3.5",
+    "matplotlib>=3.7",
+]
+
+[tool.setuptools]
+py-modules = [
+    "hyperparams_meteo",
+    "hyperparams_traffic",
+    "hyperparams_air",
+    "reference_methods_meteo",
+    "reference_methods_traffic",
+    "reference_methods_air",
+    "virtual_meteo",
+    "virtual_traffic",
+    "virtual_air",
+]
+
+[tool.setuptools.packages.find]
+include = [
+    "data_handling*",
+    "models_impl*",
+    "training*",
+    "eval_vis*",
+    "interpolation*",
+]

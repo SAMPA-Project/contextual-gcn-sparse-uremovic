@@ -1,0 +1,9 @@
+torch>=2.0
+torch-geometric>=2.3
+torch-geometric-temporal>=0.54
+numpy>=1.24
+pandas>=2.0
+networkx>=3.0
+natsort>=8.0
+pyproj>=3.5
+matplotlib>=3.7
