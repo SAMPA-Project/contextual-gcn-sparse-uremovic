@@ -1,15 +1,18 @@
 """
 Classical spatial-interpolation baselines (IDW / kriging / TPS / raster-ConvLSTM)
-compared against the base GCRNN, on the air dataset, across k-fold splits
-where a subset of stations is held out as "virtual" (unobserved) nodes.
+compared against the base GCRNN, on the air dataset, across all 8 k-fold
+splits (fixed for this dataset) where a subset of stations is held out as
+"virtual" (unobserved) nodes.
 
-Run with no arguments to run every fold (0..k-1, k=8 by default) through all
-three baselines (base_interp, interp_base, interp_raster). Pass --fold to
-run only that one fold; pass --k to change the total number of folds (only
-meaningful if matching k-fold data was generated with that k).
+Run with no arguments to run every fold through all three baselines
+(base_interp, interp_base, interp_raster) with the default model size. Pass
+--fold to run only that one fold; pass --filters/--khops/--layers to
+override the model size used by all three (interp_raster's ConvLSTM has no
+khops, but uses the same --filters/--layers).
 
-    python reference_methods_air.py             # all folds
-    python reference_methods_air.py --fold 3     # just fold 3
+    python reference_methods_air.py                       # all folds, default size
+    python reference_methods_air.py --fold 3               # just fold 3
+    python reference_methods_air.py --filters 128 --layers 3
 """
 
 from data_handling.timeseries import load_data_m2m_air
@@ -48,7 +51,7 @@ SPLIT = 0.666
 EPOCHS = 200
 REPORT_TRAIN_LOSS_EPOCHS = 1000
 
-def base_interp(k, graph_real, metadata_real, graph_full, metadata_full):
+def base_interp(k, graph_real, metadata_real, graph_full, metadata_full, filters=64, khops=2, layers=2):
     """
     Baseline: predict on the real (observed-only) graph G-, then spatially
     interpolate (IDW/kriging/TPS) those predictions out to the virtual
@@ -60,10 +63,8 @@ def base_interp(k, graph_real, metadata_real, graph_full, metadata_full):
         metadata_real: station metadata JSON for G-
         graph_full:    edgelist path for G (all stations)
         metadata_full: station metadata JSON for G
+        filters, khops, layers: base GCRNN hyperparameters
     """
-    filters = 64
-    layers= 2
-    khops = 2
     from hyperparams_air import base_model
     y, yhat, _,_ = base_model(graph_real, metadata_real, filters=filters, khops=khops, layers=layers, epochs=EPOCHS, save=False) # predictions on G-
     y_full,_,_,_ = base_model(graph_full, metadata_full, filters=filters, khops=khops, layers=layers, epochs=1, save=False, skiptrain=True) # labels for G
@@ -117,7 +118,7 @@ def base_interp(k, graph_real, metadata_real, graph_full, metadata_full):
     np.save(f'{save_dir}/{str(krig_error)}_krig_error.npy', krig_error)
     np.save(f'{save_dir}/{str(tps_error)}_tps_error.npy', tps_error)
 
-def interp_base(k, graph_real, metadata_real, graph_full, metadata_full):
+def interp_base(k, graph_real, metadata_real, graph_full, metadata_full, filters=64, khops=2, layers=2):
     """
     Baseline: spatially interpolate (IDW/kriging/TPS) the raw inputs/targets
     from G- out to all nodes of G first, then run the base GCRNN on the full
@@ -126,9 +127,6 @@ def interp_base(k, graph_real, metadata_real, graph_full, metadata_full):
 
     Args: same as base_interp().
     """
-    filters = 64
-    layers= 2
-    khops = 2
     features, targets, mean, std = load_data_m2m_air(HISTORY_WINDOW, HORIZON, FEATURES, FORECAST_FEATURES, ft=forecast_type.horizon_window, metadata_file=metadata_real)
     edge_weight, edge_index = load_graph_traffic(graph_full, metadata_full)
     
@@ -194,7 +192,7 @@ def interp_base(k, graph_real, metadata_real, graph_full, metadata_full):
     np.save(f'{save_dir}/{str(krig_error)}_krig_error.npy', krig_error)
     np.save(f'{save_dir}/{str(tps_error)}_tps_error.npy', tps_error)
 
-def interp_raster(i, graph_real, metadata_real, graph_full, metadata_full):
+def interp_raster(i, graph_real, metadata_real, graph_full, metadata_full, filters=64, khops=2, layers=2):
     """
     Baseline: spatially interpolate the sparse per-station data onto a
     raster grid, train a ConvLSTM context-encoder-decoder on that grid, then
@@ -202,7 +200,8 @@ def interp_raster(i, graph_real, metadata_real, graph_full, metadata_full):
     (idw/ok/tps) errors on both the real and virtual nodes.
 
     Args: same as base_interp(), with `i` used both for naming and as the
-    fold index (interchangeable with `k` there).
+    fold index (interchangeable with `k` there). `khops` is accepted for a
+    uniform signature but unused — ConvLSTM has no Chebyshev filter order.
     """
     pixel_size = 480 * 8
     from data_handling.grid import full_grid
@@ -223,7 +222,8 @@ def interp_raster(i, graph_real, metadata_real, graph_full, metadata_full):
         ft=forecast_type.horizon_only_window, metadata_file=metadata_real,
     )
  
-    # ── full-graph ground truth ───────────────────────────────────────────────
+    # cheap dummy model just to pull the ground-truth y out of the data
+    # loader — its size doesn't matter since we discard the prediction
     from hyperparams_air import base_model
     y_full_gt, _, _, _ = base_model(
         graph_full, metadata_full, filters=8, khops=1, layers=1,
@@ -321,8 +321,8 @@ def interp_raster(i, graph_real, metadata_real, graph_full, metadata_full):
  
     def make_model():
         return ConvLSTM_ctxCNN_encoderdecoder(
-            filters           = 16,
-            layers            = 2,
+            filters           = filters,
+            layers            = layers,
             node_features     = len(FEATURES),
             forecast_features = len(FORECAST_FEATURES),
             known_features    = len(KNOWN_FEATURES),
@@ -336,15 +336,15 @@ def interp_raster(i, graph_real, metadata_real, graph_full, metadata_full):
     EPOCHS_    = 100
  
     # ── save dir ──────────────────────────────────────────────────────────────
-    save_dir = f'results/experiments/interp_raster_air/fold={i}'
+    save_dir = f'results/experiments/interp_raster_air/l={layers}_f={filters}/fold={i}'
     os.makedirs(save_dir, exist_ok=True)
     #np.save(f'{save_dir}/y_full_gt.npy', y_full_gt)
- 
+
     # ── train, chunked inference, evaluate ───────────────────────────────────
     for name in ('idw', 'ok', 'tps'):
         model = make_model()
         opt   = torch.optim.Adam(model.parameters(), lr=1e-3)
-        exp   = f'interp_raster_air/{name}/fold={i}'
+        exp   = f'interp_raster_air/l={layers}_f={filters}/{name}/fold={i}'
  
         # train on sparse grid interpolations
         train_raster(exp, model, tr_x[name], te_x[name], tr_y[name], te_y[name],
@@ -404,24 +404,27 @@ def interp_raster(i, graph_real, metadata_real, graph_full, metadata_full):
  
         print(f'{name}  real_error={error_real}  virtual_error={error_virtual}')
 
+N_FOLDS = 8  # air k-fold data is fixed at 8 folds (0..7)
+
 def main():
     parser = argparse.ArgumentParser(description='Interpolation baselines vs. base GCRNN (air), across k-fold splits.')
-    parser.add_argument('--k', type=int, default=8,
-                         help='total number of folds the k-fold data was generated with (default: %(default)s)')
     parser.add_argument('--fold', type=int, default=None,
-                         help='run only this fold index; default runs every fold 0..k-1')
+                         help='run only this fold index; default runs every fold 0..7')
+    parser.add_argument('--filters', type=int, default=64, help='hidden width (default: %(default)s)')
+    parser.add_argument('--khops', type=int, default=2, help='Chebyshev filter order (default: %(default)s)')
+    parser.add_argument('--layers', type=int, default=2, help='number of GCRNN layers (default: %(default)s)')
     args = parser.parse_args()
 
-    folds = [args.fold] if args.fold is not None else range(args.k)
+    folds = [args.fold] if args.fold is not None else range(N_FOLDS)
     for i in folds:
         graph_real = f'data/air/graph/{i}_real_inv.nx'
         metadata_real = f"data/air/contextual/{i}_real.json"
         metadata_virtual = f"data/air/contextual/{i}_virtual.json"
         graph_full = "data/air/graph/stations_inv.nx"
         metadata_full = 'data/air/contextual/stations.json'
-        base_interp(i, graph_real, metadata_real, graph_full, metadata_full)
-        interp_base(i, graph_real, metadata_real, graph_full, metadata_full)
-        interp_raster(i, graph_real, metadata_real, graph_full, metadata_full)
+        base_interp(i, graph_real, metadata_real, graph_full, metadata_full, filters=args.filters, khops=args.khops, layers=args.layers)
+        interp_base(i, graph_real, metadata_real, graph_full, metadata_full, filters=args.filters, khops=args.khops, layers=args.layers)
+        interp_raster(i, graph_real, metadata_real, graph_full, metadata_full, filters=args.filters, khops=args.khops, layers=args.layers)
 
 if __name__ == '__main__':
     main()

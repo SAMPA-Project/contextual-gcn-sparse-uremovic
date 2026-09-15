@@ -107,22 +107,27 @@ script family:
   ```
 
 - **`reference_methods*.py`** and **`virtual*.py`** (the actual experiments,
-  run across k-fold splits): with no arguments, every parameter defaults to
-  its original value from the source project (fold count `--k`, model size
-  `--filters`/`--khops`/`--layers`, `--virtual-ratio`, and — for `virtual*.py`
-  — `--variant` {ctx, noctx}), and every fold `0..k(-1)` is run. Passing
-  `--fold` restricts the run to that one fold; passing any other flag
-  overrides just that value for all folds run.
+  run across k-fold splits): the fold count is fixed per dataset (not a CLI
+  option) — 9 for meteo, 10 for traffic, 8 for air. With no arguments, every
+  fold is run at the model size the source project originally used
+  (`--filters`/`--khops`/`--layers`, plus `--virtual-ratio` for `virtual*.py`).
+  Passing `--fold` restricts the run to that one fold; passing any other
+  flag overrides just that value for all folds run. Both script families
+  always condition on the dataset's contextual features — there's no
+  no-context ablation mode. `interp_raster`'s ConvLSTM baseline has no
+  `khops` concept, but uses the same `--filters`/`--layers` as the rest of
+  the script's run.
 
   ```bash
   python virtual_air.py                          # original config, every fold
   python virtual_air.py --fold 2 --filters 32      # fold 2 only, filters=32
   python reference_methods_meteo.py --fold 0       # just fold 0
+  python reference_methods_meteo.py --filters 128 --layers 3  # every fold, bigger model
   ```
 
 Each script's module docstring documents its exact defaults; function
-docstrings on `base_model`/`virtual`/`virtual_noctx`/`base_interp`/
-`interp_base`/`interp_raster` document their parameters.
+docstrings on `base_model`/`virtual`/`base_interp`/`interp_base`/
+`interp_raster` document their parameters.
 
 ## Citation
 

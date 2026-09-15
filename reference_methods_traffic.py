@@ -1,15 +1,17 @@
 """
 Classical spatial-interpolation baselines (IDW, graph-road-distance variant)
-compared against the base GCRNN, on the traffic dataset, across k-fold
-splits where a subset of counters is held out as "virtual" (unobserved) nodes.
+compared against the base GCRNN, on the traffic dataset, across all 10
+k-fold splits (fixed for this dataset) where a subset of counters is held
+out as "virtual" (unobserved) nodes.
 
-Run with no arguments to run every fold (0..k-1, k=10 by default) through
-both baselines (base_interp, interp_base). Pass --fold to run only that one
-fold; pass --k to change the total number of folds (only meaningful if
-matching k-fold data was generated with that k).
+Run with no arguments to run every fold through both baselines
+(base_interp, interp_base) with the default model size. Pass --fold to run
+only that one fold; pass --filters/--khops/--layers to override the model
+size used by both.
 
-    python reference_methods_traffic.py             # all folds
-    python reference_methods_traffic.py --fold 3     # just fold 3
+    python reference_methods_traffic.py                       # all folds, default size
+    python reference_methods_traffic.py --fold 3               # just fold 3
+    python reference_methods_traffic.py --filters 128 --layers 3
 """
 
 from data_handling.timeseries import load_data_m2m_traffic
@@ -50,7 +52,7 @@ lr=0.005
 SPLIT = 0.666
 EPOCHS = 500
 
-def base_interp(k, graph_real, metadata_real, graph_full, metadata_full):
+def base_interp(k, graph_real, metadata_real, graph_full, metadata_full, filters=64, khops=2, layers=2):
     """
     Baseline: predict on the real (observed-only) graph G-, then spatially
     interpolate (graph-road-distance IDW) those predictions out to the
@@ -62,10 +64,8 @@ def base_interp(k, graph_real, metadata_real, graph_full, metadata_full):
         metadata_real: counter metadata JSON for G-
         graph_full:    edgelist path for G (all counters)
         metadata_full: counter metadata JSON for G
+        filters, khops, layers: base GCRNN hyperparameters
     """
-    filters = 64
-    layers= 2
-    khops = 2
     from hyperparams_traffic import base_model
     y, yhat, _, _ = base_model(graph_real, metadata_real, filters=filters, khops=khops, layers=layers, epochs=EPOCHS, save=False) # predictions on G-
     y_full, _,edge_weight, edge_index = base_model(graph_full, metadata_full, filters=filters, khops=khops, layers=layers, epochs=1, save=False, skiptrain=True) # labels for G
@@ -111,7 +111,7 @@ def base_interp(k, graph_real, metadata_real, graph_full, metadata_full):
     np.save(f'{save_dir}/{str(real_error)}_real_error.npy', real_error)
     np.save(f'{save_dir}/{str(idw_error)}_idw_error.npy', idw_error)
 
-def interp_base(k, graph_real, metadata_real, graph_full, metadata_full):
+def interp_base(k, graph_real, metadata_real, graph_full, metadata_full, filters=64, khops=2, layers=2):
     """
     Baseline: spatially interpolate (graph-road-distance IDW) the raw
     inputs/targets from G- out to all nodes of G first, then run the base
@@ -120,9 +120,6 @@ def interp_base(k, graph_real, metadata_real, graph_full, metadata_full):
 
     Args: same as base_interp().
     """
-    filters = 64
-    layers= 2
-    khops = 2
     features, targets, mean, std = load_data_m2m_traffic(HISTORY_WINDOW, HORIZON, FEATURES, FORECAST_FEATURES, ft=forecast_type.horizon_window, metadata_file=metadata_real)
     edge_weight, edge_index = load_graph_traffic(graph_full, metadata_full)
     
@@ -171,23 +168,26 @@ def interp_base(k, graph_real, metadata_real, graph_full, metadata_full):
     np.save(f'{save_dir}/{str(idw_error)}_idw_error.npy', idw_error)
 
 
+N_FOLDS = 10  # traffic k-fold data is fixed at 10 folds (0..9)
+
 def main():
     parser = argparse.ArgumentParser(description='Interpolation baselines vs. base GCRNN (traffic), across k-fold splits.')
-    parser.add_argument('--k', type=int, default=10,
-                         help='total number of folds the k-fold data was generated with (default: %(default)s)')
     parser.add_argument('--fold', type=int, default=None,
-                         help='run only this fold index; default runs every fold 0..k-1')
+                         help='run only this fold index; default runs every fold 0..9')
+    parser.add_argument('--filters', type=int, default=64, help='hidden width (default: %(default)s)')
+    parser.add_argument('--khops', type=int, default=2, help='Chebyshev filter order (default: %(default)s)')
+    parser.add_argument('--layers', type=int, default=2, help='number of GCRNN layers (default: %(default)s)')
     args = parser.parse_args()
 
-    folds = [args.fold] if args.fold is not None else range(args.k)
+    folds = [args.fold] if args.fold is not None else range(N_FOLDS)
     for i in folds:
         graph_real = f'data/traffic/graph/{i}_real.nx'
         metadata_real = f"data/traffic/contextual/{i}_real.json"
         metadata_virtual = f"data/traffic/contextual/{i}_virtual.json"
         graph_full = 'data/traffic/graph/stations.nx'
         metadata_full = 'data/traffic/contextual/stations.json'
-        base_interp(i, graph_real, metadata_real, graph_full, metadata_full)
-        interp_base(i, graph_real, metadata_real, graph_full, metadata_full)
+        base_interp(i, graph_real, metadata_real, graph_full, metadata_full, filters=args.filters, khops=args.khops, layers=args.layers)
+        interp_base(i, graph_real, metadata_real, graph_full, metadata_full, filters=args.filters, khops=args.khops, layers=args.layers)
 
 if __name__ == '__main__':
     main()
