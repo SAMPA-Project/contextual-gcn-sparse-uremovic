@@ -90,10 +90,8 @@ archived on Zenodo:
 
 [**10.5281/zenodo.17091212**](https://doi.org/10.5281/zenodo.17091212)
 
-Download it from there and place it at `data/` in the repository root — or
-see [DATA.md](DATA.md) for the exact folder layout and naming if you're
-instead sourcing/regenerating it yourself via
-[`scripts/collect_zenodo_data.py`](scripts/collect_zenodo_data.py).
+Download it from there and place it at `data/` in the repository root. See
+[DATA.md](DATA.md) for the exact folder layout and naming.
 
 ## Running
 

@@ -1,9 +1,10 @@
 # Data layout
 
-No data ships with this repository. Every path below is read relative to
-the repository root, so create a `data/` folder there matching this layout
-exactly (paths in **bold** are the ones the code opens directly; everything
-else is folder structure).
+No data ships with this repository. Download it from Zenodo
+([10.5281/zenodo.17091212](https://doi.org/10.5281/zenodo.17091212)) and
+extract it to a `data/` folder at the repository root matching the layout
+below exactly (paths in **bold** are the ones the code opens directly;
+everything else is folder structure).
 
 None of this is anonymized/synthetic — it is real station/counter data, so
 treat it accordingly (do not commit it; keep it out of version control,
@@ -27,17 +28,6 @@ than one graph variant exists for the same node set (`_inv` = inverse
 road-distance weights, `_expw` = exponential road-distance weights, `_hp` =
 the separate graph used only for meteo's hyperparameter sweep — see the note
 below).
-
-If you still have the original `tools/meteo_slo/`, `tools/dars_traffic/`,
-`tools/arso_air/` tree from the source project, run
-[`scripts/collect_zenodo_data.py`](scripts/collect_zenodo_data.py) from
-there — it copies exactly the files below into this layout and zips the
-result (for a Zenodo upload, say), reporting anything it can't find rather
-than failing silently:
-
-```bash
-python collect_zenodo_data.py --source-root tools --dest-root data
-```
 
 ## `data/meteo/` — weather stations (9-fold split, `k=8` → folds `i=0..8`)
 
