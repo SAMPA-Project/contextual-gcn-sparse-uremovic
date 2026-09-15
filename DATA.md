@@ -1,8 +1,11 @@
 # Data layout
 
 No data ships with this repository. Download it from Zenodo
-([10.5281/zenodo.17091212](https://doi.org/10.5281/zenodo.17091212)) and
-extract it to a `data/` folder at the repository root matching the layout
+([10.5281/zenodo.17091212](https://doi.org/10.5281/zenodo.17091212)) — it's
+a split 7-Zip archive (`data.7z.001`, `data.7z.002`, ...), so grab every
+part into one folder and open `data.7z.001` in [7-Zip](https://www.7-zip.org/);
+it pulls in the rest of the parts automatically, no manual recombining.
+Extract it to a `data/` folder at the repository root matching the layout
 below exactly (paths in **bold** are the ones the code opens directly;
 everything else is folder structure).
 
