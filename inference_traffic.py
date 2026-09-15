@@ -10,7 +10,7 @@ Checkpoints are expected at:
 
 Pretrained checkpoints (fold 0..9, the default filters=192/khops=2/layers=3
 configuration) are published on HuggingFace:
-    <PLACEHOLDER: HuggingFace model repo URL>
+    https://huggingface.co/sampa-project/contextual-gcn-sparse
 Download and place them under models/traffic/... matching the layout above
 — or train your own with virtual_traffic.py.
 
@@ -61,7 +61,7 @@ SPLIT = 0.666
 N_FOLDS = 10  # traffic k-fold data is fixed at 10 folds (0..9)
 
 MODELS_ROOT = 'models/traffic'
-HF_MODELS_URL = "<PLACEHOLDER: HuggingFace model repo URL>"
+HF_MODELS_URL = "https://huggingface.co/sampa-project/contextual-gcn-sparse"
 
 
 def load_pretrained_model(fold, filters, khops, layers, ctx_features):

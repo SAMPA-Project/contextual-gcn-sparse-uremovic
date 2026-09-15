@@ -10,7 +10,7 @@ Checkpoints are expected at:
 
 Pretrained checkpoints (fold 0..8, the default filters=128/khops=2/layers=3
 configuration) are published on HuggingFace:
-    <PLACEHOLDER: HuggingFace model repo URL>
+    https://huggingface.co/sampa-project/contextual-gcn-sparse
 Download and place them under models/meteo/... matching the layout above —
 or train your own with virtual_meteo.py.
 
@@ -46,7 +46,7 @@ res = 240
 N_FOLDS = 9  # meteo k-fold data is fixed at 9 folds (0..8)
 
 MODELS_ROOT = 'models/meteo'
-HF_MODELS_URL = "<PLACEHOLDER: HuggingFace model repo URL>"
+HF_MODELS_URL = "https://huggingface.co/sampa-project/contextual-gcn-sparse"
 
 
 def load_pretrained_model(fold, filters, khops, layers, ctx_features):

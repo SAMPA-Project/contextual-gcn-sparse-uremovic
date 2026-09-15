@@ -5,10 +5,12 @@ proposed method — see [`virtual_meteo.py`](virtual_meteo.py)/
 [`virtual_traffic.py`](virtual_traffic.py)/[`virtual_air.py`](virtual_air.py))
 are published on HuggingFace:
 
-**`<PLACEHOLDER: HuggingFace model repo URL>`**
+[**sampa-project/contextual-gcn-sparse**](https://huggingface.co/sampa-project/contextual-gcn-sparse)
 
-Download and extract to `models/` in the repository root, matching this
-layout exactly:
+Its `air/`, `meteo/`, `traffic/` folders map directly onto
+`models/air/`, `models/meteo/`, `models/traffic/` — download it and place
+its contents at `models/` in the repository root, matching this layout
+exactly:
 
 ```
 models/<dataset>/l=<layers>_k=<khops>_f=<filters>/kfold=<fold>.pt

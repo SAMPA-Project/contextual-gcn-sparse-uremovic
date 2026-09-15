@@ -98,13 +98,14 @@ Download it from there and place it at `data/` in the repository root. See
 Pretrained virtual-node GCRNN checkpoints (the proposed method) are
 published on HuggingFace:
 
-[**`<PLACEHOLDER: HuggingFace model repo URL>`**](<PLACEHOLDER: HuggingFace model repo URL>)
+[**sampa-project/contextual-gcn-sparse**](https://huggingface.co/sampa-project/contextual-gcn-sparse)
 
-Download and place them at `models/` in the repository root, then run
-`inference_meteo.py` / `inference_traffic.py` / `inference_air.py` to
-evaluate a checkpoint on its k-fold test split without retraining. See
-[MODELS.md](MODELS.md) for the exact layout, the published configurations,
-and full usage.
+Download it and place its contents at `models/` in the repository root —
+its `air/`, `meteo/`, `traffic/` folders become `models/air/`,
+`models/meteo/`, `models/traffic/` — then run `inference_meteo.py` /
+`inference_traffic.py` / `inference_air.py` to evaluate a checkpoint on its
+k-fold test split without retraining. See [MODELS.md](MODELS.md) for the
+exact layout, the published configurations, and full usage.
 
 ## Running
 

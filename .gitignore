@@ -3,6 +3,7 @@ __pycache__/
 results/
 data/
 models/
+*.zip
 *.egg-info/
 scripts/collect_zenodo_data.py
 scripts/collect_hf_models.py
