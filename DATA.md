@@ -94,28 +94,10 @@ context).
   large combustion plant — `lcp_*` — proximity/emissions, NDVI, building
   coverage, plus rolling per-pollutant stats `<pollutant>_mean/std/p5/p95/daily_fluct`).
 
-## Notes / things to double check when sourcing this from the larger project
+## Regenerating the `_expw` traffic graphs
 
-- `hyperparams_air.py`'s `__main__` block and the rest of the "air"
-  scripts used two *different* paths for what looks like the same full
-  station-metadata file (`arso_air/data/metadata/arso_air_postaje_curated.json`
-  vs. `tools/arso_air/arso_air_postaje_curated.json`). Both were normalized
-  here to `data/air/contextual/stations.json` — please confirm that's
-  actually the same file before copying data over, otherwise
-  `hyperparams_air.py` needs pointing at a second file.
-- `interpolation_meteo.py` imported a `phd_hyperparams` module that does not
-  exist anywhere in this codebase (only `phd_hyperparams_residual.py` did,
-  itself since renamed to `hyperparams_meteo.py`). It's been repointed to
-  `hyperparams_meteo.py`, assuming that was always the intent — flag if that
-  assumption is wrong.
-- The meteo `stations.nx` vs. `stations_hp.nx` split (see above) is a
-  judgment call: the original two graphs were named
-  `..._fullHigherBenchmarks` and a bare (no-suffix) name, with no explicit
-  documentation of which was "canonical". `stations.nx` was chosen as the
-  one actually used by the fold-based experiments; `stations_hp.nx` is only
-  ever used standalone by the hyperparameter sweep. Flag if that's backwards.
-- The `data/traffic/graph/*_expw.nx` files are *generated* (not raw data) by
-  `data_handling/generate_expw_graphs.py` from `stations.nx` +
-  `contextual/stations.json`. You only need to source the base `.nx` graphs
-  and can regenerate the `_expw` variants by running that script once the
-  base data is in place.
+`data/traffic/graph/*_expw.nx` are *generated*, not raw data — produced by
+`data_handling/generate_expw_graphs.py` from `stations.nx` +
+`contextual/stations.json`. If you're sourcing the base `.nx` graphs from
+scratch, you can rebuild the `_expw` variants by running that script once
+the base data is in place, instead of also needing to source them.
