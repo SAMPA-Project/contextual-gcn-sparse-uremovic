@@ -317,7 +317,7 @@ def interp_raster(i, graph_real, metadata_real, graph_full, metadata_full):
     # ── model factory ─────────────────────────────────────────────────────────
     import torch
     from models_impl.convlstm import ConvLSTM_ctxCNN_encoderdecoder
-    from training.training import train_raster
+    from training.training import train_raster, get_device
  
     def make_model():
         return ConvLSTM_ctxCNN_encoderdecoder(
@@ -354,7 +354,7 @@ def interp_raster(i, graph_real, metadata_real, graph_full, metadata_full):
         # interpolate chunk by chunk to avoid holding all S_test grid frames in RAM
         yhat_chunks = []
  
-        device = torch.device(0)
+        device = get_device()
         model.eval()
         model.to(device)
         ctx_b  = torch.tensor(ctx, dtype=torch.float32).unsqueeze(0) \

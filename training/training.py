@@ -18,6 +18,13 @@ class TrainingMode(Enum):
     UNIVARIATE_NHORIZON = 2
     MULTIVARIATE_1HORIZON = 3
 
+def get_device():
+    """
+    Pick the compute device: CUDA device 0 if a GPU is available (matching
+    this project's original hardcoded `torch.device(0)`), otherwise CPU.
+    """
+    return torch.device(0) if torch.cuda.is_available() else torch.device('cpu')
+
 def save(name, model):
     os.makedirs('results/experiments/{}'.format(name), exist_ok=True)
     torch.save(model.state_dict(), 'results/experiments/{}/model.pt'.format(name))
@@ -66,7 +73,7 @@ def train_raster(
     if BATCH_SIZE_TEST is None:
         BATCH_SIZE_TEST = BATCH_SIZE
  
-    device    = torch.device(0)
+    device    = get_device()
     model.to(device)
  
     # pre-process context: tile to (B, C_ctx, H, W) for train and test
@@ -154,7 +161,7 @@ def train(experiment_name, model, train_dataset, test_dataset, loss, optimizer, 
     if BATCH_SIZE_TEST is None:
         BATCH_SIZE_TEST = BATCH_SIZE
 
-    device = torch.device(0)
+    device = get_device()
 
     if not virtual_node_training:
         virtual_node_ratio = 1

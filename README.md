@@ -74,10 +74,13 @@ but then always run scripts from the repository root (so the top-level
 modules and the `data_handling`/`models_impl`/`training`/`eval_vis` packages
 resolve on `sys.path`).
 
-**GPU**: training and inference are hardcoded to `torch.device(0)` (CUDA
-device 0). A CUDA-capable GPU is required as-is; CPU-only use would need
-that hardcoded device swapped for `torch.device('cpu')` in
-`training/training.py` and `eval_vis/interence.py`.
+**GPU**: device selection goes through `training.training.get_device()`,
+which picks CUDA device 0 when a GPU is available (matching this project's
+original behavior) and otherwise falls back to CPU. Every script that runs
+a model calls this instead of hardcoding a device, so nothing breaks on a
+CPU-only machine — it just runs on CPU (slowly, for anything but a quick
+smoke test). There's no multi-GPU or device-selection flag; it's always
+"GPU 0 if present, else CPU".
 
 ## Data
 

@@ -3,6 +3,8 @@
 import torch
 import numpy as np
 
+from training.training import get_device
+
 def restore_original_order(tensor, mask_real, mask_virtual):
     num_real = mask_real.sum()
 
@@ -26,7 +28,7 @@ def inference(model, test_dataset, station_context, BATCH_SIZE, ids_virtual=[], 
         virtual_node_training=False
     else:
         virtual_node_training=True
-    device = torch.device(0)
+    device = get_device()
     model.to(device)
     ctx_single = station_context
 
