@@ -93,6 +93,19 @@ archived on Zenodo:
 Download it from there and place it at `data/` in the repository root. See
 [DATA.md](DATA.md) for the exact folder layout and naming.
 
+## Pretrained models
+
+Pretrained virtual-node GCRNN checkpoints (the proposed method) are
+published on HuggingFace:
+
+[**`<PLACEHOLDER: HuggingFace model repo URL>`**](<PLACEHOLDER: HuggingFace model repo URL>)
+
+Download and place them at `models/` in the repository root, then run
+`inference_meteo.py` / `inference_traffic.py` / `inference_air.py` to
+evaluate a checkpoint on its k-fold test split without retraining. See
+[MODELS.md](MODELS.md) for the exact layout, the published configurations,
+and full usage.
+
 ## Running
 
 Every script takes CLI arguments (`--help` lists them) and writes results
