@@ -1,4 +1,4 @@
-# hybrid-context-gcrnn
+# Contextualized spatio-temporal graph-based method for forecasting sparse geospatial sensor networks
 
 Official implementation accompanying:
 
